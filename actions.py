@@ -31,3 +31,13 @@ def designer(path):
         subprocess.Popen(["pyqt5-tools", "designer", str(file)])
     else:
         subprocess.Popen(["pyqt5-tools", "designer"])
+
+def new_item(item, name):
+    if item == "QMainWindow":
+        hp.new_main_window(name)
+    elif item == "QDialog":
+        hp.new_dialog_window(name)
+    elif item == "QWidget":
+        hp.new_widget(name)
+    elif item == "app":
+        hp.new_app(name)
