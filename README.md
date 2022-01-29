@@ -2,5 +2,5 @@
 
 ```
 pipenv install
-sudo ln  -s $(pwd)/run /usr/local/bin/pyqt5-tools-wrapper
+sudo ln  -s $(pwd)/run /usr/local/bin/p5w
 ```
