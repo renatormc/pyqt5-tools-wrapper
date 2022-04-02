@@ -2,6 +2,8 @@ import subprocess
 from typing import Union
 import helpers as hp
 from pathlib import Path
+from InquirerPy import inquirer
+
 
 def build():
     folder = Path(".")
@@ -21,16 +23,27 @@ def get_ui_file(path: Path) -> Union[Path, None]:
     return None
 
 
-def designer(path):
-    if not path:
+def designer(term):
+    
+    if not term:
         subprocess.Popen(["pyqt5-tools", "designer"])
         return
-    path = Path(path)
+    path = Path(term)
     file = get_ui_file(path)
     if file:
         subprocess.Popen(["pyqt5-tools", "designer", str(file)])
     else:
-        subprocess.Popen(["pyqt5-tools", "designer"])
+        folder = Path(".")
+        items = hp.find_ui_files(folder, term_search=term)
+        if not items:
+            print("Item not found")
+            return
+        file_ = inquirer.select(
+            message="Model:",
+            choices=items,
+        ).execute()
+        subprocess.Popen(["pyqt5-tools", "designer", file_])
+
 
 def new_item(item, name):
     if item == "QMainWindow":
