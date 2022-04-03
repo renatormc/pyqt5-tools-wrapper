@@ -3,14 +3,20 @@ from typing import Union
 import helpers as hp
 from pathlib import Path
 from InquirerPy import inquirer
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+import time
 
+
+def compile_file(file_):
+    print(f"Compilando {file_}")
+    hp.compile(file_)
 
 def build():
     folder = Path(".")
     items = hp.find_ui_files(folder)
     for item in items:
-        print(f"Compilando {item}")
-        hp.compile(item)
+        compile_file(item)
 
 
 def get_ui_file(path: Path) -> Union[Path, None]:
@@ -24,7 +30,7 @@ def get_ui_file(path: Path) -> Union[Path, None]:
 
 
 def designer(term):
-    
+
     if not term:
         subprocess.Popen(["pyqt5-tools", "designer"])
         return
@@ -54,3 +60,40 @@ def new_item(item, name):
         hp.new_widget(name)
     elif item == "app":
         hp.new_app(name)
+
+
+class EventHandler(FileSystemEventHandler):
+   
+    # def on_moved(self, event):
+    #     pass
+
+    # def on_created(self, event):
+    #     pass
+
+    # def on_deleted(self, event):
+    #     pass
+
+    def on_modified(self, event):
+        if not event.is_directory:
+            path_str = event.src_path.split("#")[0]
+            path = Path(path_str)
+            ui_file = get_ui_file(path)
+            if ui_file:
+                compile_file(ui_file)
+            
+
+def start_watching(folder, recursive: bool):
+    build()
+    print("Whatching file changes")
+    events = EventHandler()
+    observer = Observer()
+    observer.schedule(events, folder, recursive=recursive)
+    observer.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.unschedule(events)
+        observer.stop()
+    observer.join()
