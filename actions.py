@@ -6,7 +6,11 @@ from InquirerPy import inquirer
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import time
+import os
 
+def run_devnull(args):
+    with open(os.devnull, 'wb') as devnull:
+        subprocess.Popen(args, stdin=subprocess.PIPE, stdout=devnull, stderr=devnull)
 
 def compile_file(file_):
     print(f"Compilando {file_}")
@@ -32,12 +36,12 @@ def get_ui_file(path: Path) -> Union[Path, None]:
 def designer(term):
 
     if not term:
-        subprocess.Popen(["pyqt5-tools", "designer"])
+        run_devnull(["pyqt5-tools", "designer"])
         return
     path = Path(term)
     file = get_ui_file(path)
     if file:
-        subprocess.Popen(["pyqt5-tools", "designer", str(file)])
+        run_devnull(["pyqt5-tools", "designer", str(file)])
     else:
         folder = Path(".")
         items = hp.find_ui_files(folder, term_search=term)
@@ -48,8 +52,8 @@ def designer(term):
             message="Model:",
             choices=items,
         ).execute()
-        subprocess.Popen(["pyqt5-tools", "designer", file_])
-
+        run_devnull(["pyqt5-tools", "designer", file_])
+       
 
 def new_item(item, name):
     if item == "QMainWindow":
